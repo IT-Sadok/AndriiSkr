@@ -1,6 +1,7 @@
 using BookManagementApp.Models;
 using BookManagementApp.Repositories.Interfaces;
 using BookManagementApp.Data.Interfaces;
+using BookManagementApp.Models.Enums;
 
 namespace BookManagementApp.Repositories;
 
@@ -11,7 +12,7 @@ public class BookRepository(IJsonDataHelper jsonDataHelper)
     {
         return jsonDataHelper
             .ReadAll()
-            .Where(x => x.Status)
+            .Where(x => x.Status == BookStatus.Available)
             .ToList();
     }
 
@@ -30,38 +31,38 @@ public class BookRepository(IJsonDataHelper jsonDataHelper)
             .FirstOrDefault(x => x.Title == title);
     }
     
-    public bool AddBook(Book book)
+    public Book? AddBook(Book book)
     {
         var books = jsonDataHelper.ReadAll();
 
         var alreadyExists = books.Any(x =>
-            x.UniqueCode == book.UniqueCode);
+            x.Isbn == book.Isbn);
 
         if (alreadyExists)
-            return false;
+            return null;
 
         books.Add(book);
 
         jsonDataHelper.WriteAll(books);
 
-        return true;
+        return book;
     }
     
-    public bool RemoveByUniqueCode(int uniqueCode)
+    public Book? RemoveByIsbn(int isbn)
     {
         var books = jsonDataHelper.ReadAll();
 
         var book = books
-            .FirstOrDefault(x => x.UniqueCode == uniqueCode);
+            .FirstOrDefault(x => x.Isbn == isbn);
 
         if (book is null)
-            return false;
+            return null;
 
         books.Remove(book);
 
         jsonDataHelper.WriteAll(books);
 
-        return true;
+        return book;
     }
 
     public Book? ChangeStatus(string title)
@@ -74,7 +75,9 @@ public class BookRepository(IJsonDataHelper jsonDataHelper)
         if (book is null)
             return null;
 
-        book.Status = !book.Status;
+        book.Status = book.Status == BookStatus.Available 
+            ? BookStatus.Borrowed 
+            : BookStatus.Available;
 
         jsonDataHelper.WriteAll(books);
         return book;
@@ -87,11 +90,11 @@ public class BookRepository(IJsonDataHelper jsonDataHelper)
             .Any(x => x.Title == title);
     }
 
-    public bool IsUniqueCodeExists(int uniqueCode)
+    public bool IsUniqueCodeExists(int isbn)
     {
         return jsonDataHelper
             .ReadAll()
-            .Any(x => x.UniqueCode == uniqueCode);
+            .Any(x => x.Isbn == isbn);
     }
 }
 

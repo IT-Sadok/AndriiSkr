@@ -4,12 +4,12 @@ namespace BookManagementApp.Services.Interfaces;
 
 public interface IBookService
 {
-    string GetAllAvailableBooks();
-    string GetAllByAuthor(string author);
-    string GetByTitle(string title);
-    string AddBook(Book book);
-    string RemoveByUniqueCode(int uniqueCode);
-    string ChangeStatus(string title);
+    List<Book> GetAllAvailableBooks();
+    List<Book> GetAllByAuthor(string author);
+    Book? GetByTitle(string title);
+    Book? AddBook(Book book);
+    Book? RemoveByIsbn(int isbn);
+    Book? ChangeStatus(string title);
     bool IsTitleExists(string title);
-    bool IsUniqueCodeExists(int uniqueCode);
+    bool IsUniqueCodeExists(int isbn);
 }

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using BookManagementApp.Models;
 using BookManagementApp.Models.Enums;
 using BookManagementApp.Services.Interfaces;
@@ -6,6 +7,11 @@ namespace BookManagementApp;
 
 public class ConsoleMenu(IBookService service)
 {
+    private readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        WriteIndented = true
+    };
+    
     public void Start()
     {
         while (true)
@@ -64,8 +70,17 @@ public class ConsoleMenu(IBookService service)
 
     private void GetAllBooks()
     {
-        var result = service.GetAllAvailableBooks();
-        Console.WriteLine(result);
+        var books = service.GetAllAvailableBooks();
+        
+        if (books.Count == 0)
+        {
+            Console.WriteLine("No available books found");
+            return;
+        }
+        
+        var json = JsonSerializer.Serialize(books, _jsonOptions);
+        
+        Console.WriteLine(json);
     }
 
     private void SearchBooksByAuthor()
@@ -83,10 +98,18 @@ public class ConsoleMenu(IBookService service)
                 Console.WriteLine("Author cannot be empty!");
                 continue;
             }
+            
+            var books = service.GetAllByAuthor(input);
 
-            var result = service.GetAllByAuthor(input);
+            if (books.Count == 0)
+            {
+                Console.WriteLine($"No books found for author: {input}");
+                continue;
+            }
 
-            Console.WriteLine($"\nSearch result:\n{result}");
+            var json = JsonSerializer.Serialize(books, _jsonOptions);
+            
+            Console.WriteLine($"\nSearch result:\n{json}");
             return;
         }
     }
@@ -107,9 +130,17 @@ public class ConsoleMenu(IBookService service)
                 continue;
             }
 
-            var result = service.GetByTitle(input);
+            var book = service.GetByTitle(input);
 
-            Console.WriteLine($"\nSearch result:\n{result}");
+            if (book is null)
+            {
+                Console.WriteLine($"No book found for title: {input}");
+                continue;
+            }
+            
+            var json = JsonSerializer.Serialize(book, _jsonOptions);
+            
+            Console.WriteLine($"\nSearch result:\n{json}");
             return;
         }
     }
@@ -124,34 +155,47 @@ public class ConsoleMenu(IBookService service)
         
         AddAuthor(book);
         AddReleaseYear(book);
-        AddUniqueCode(book);
+        AddIsbn(book);
 
-        var result = service.AddBook(book);
-        Console.WriteLine("\n" + result);
+        var addedBook = service.AddBook(book);
+
+        if (addedBook is null)
+        {
+            Console.WriteLine("\nBook with this ISBN already exists!");
+            return;
+        }
+
+        Console.WriteLine($"\n'{addedBook.Title}' - Added successfully!");
     }
 
     private void RemoveBook()
     {
         while (true)
         {
-            Console.Write("Type unique code (or q to return): ");
+            Console.Write("Type isbn unique code (or q to return): ");
 
             var input = Console.ReadLine();
 
             if (input == "q")
                 return;
 
-            var isValid = int.TryParse(input, out var uniqueCode);
+            var isValid = int.TryParse(input, out var isbn);
 
-            if (!isValid || uniqueCode <= 0)
+            if (!isValid || isbn <= 0)
             {
-                Console.WriteLine("Invalid unique code! Type a valid unique code.");
+                Console.WriteLine("Invalid isbn unique code! Type a valid isbn unique code.");
                 continue;
             }
 
-            var result = service.RemoveByUniqueCode(uniqueCode);
+            var removedBook = service.RemoveByIsbn(isbn);
 
-            Console.WriteLine("\n" + result);
+            if (removedBook is null)
+            {
+                Console.WriteLine("\nNo book found with this ISBN!");
+                continue;
+            }
+
+            Console.WriteLine($"\n'{removedBook.Title}' - Removed successfully!");
             return;
         }
     }
@@ -172,10 +216,18 @@ public class ConsoleMenu(IBookService service)
                 Console.WriteLine("Title cannot be empty!");
                 continue;
             }
+            
+            var updatedBook = service.ChangeStatus(input);
 
-            var result = service.ChangeStatus(input);
-
-            Console.WriteLine(result);
+            if (updatedBook is null)
+            {
+                Console.WriteLine($"No book found for title: {input}");
+                continue;
+            }
+            
+            var json = JsonSerializer.Serialize(updatedBook, _jsonOptions);
+            
+            Console.WriteLine($"Book '{updatedBook.Title}' is now {updatedBook.Status}:\n" + json);
             return;
         }
     }
@@ -246,32 +298,32 @@ public class ConsoleMenu(IBookService service)
         }
     }
 
-    private void AddUniqueCode(Book book)
+    private void AddIsbn(Book book)
     {
         while (true)
         {
-            Console.Write("Type unique code of the book: ");
+            Console.Write("Type isbn unique code of the book: ");
             var input = Console.ReadLine();
 
             if (string.IsNullOrWhiteSpace(input))
             {
-                Console.WriteLine("Unique Code cannot be empty!");
+                Console.WriteLine("ISBN cannot be empty!");
                 continue;
             }
 
             if (!int.TryParse(input, out var uniqueCode) || uniqueCode <= 0)
             {
-                Console.WriteLine("Incorrect input! Type a valid Unique Code.");
+                Console.WriteLine("Incorrect input! Type a valid isbn unique code.");
                 continue;
             }
 
             if (service.IsUniqueCodeExists(uniqueCode))
             {
-                Console.WriteLine("Book with this unique code already exists!");
+                Console.WriteLine("Book with this isbn unique code already exists!");
                 continue;
             }
 
-            book.UniqueCode = uniqueCode;
+            book.Isbn = uniqueCode;
             return;
         }
     }

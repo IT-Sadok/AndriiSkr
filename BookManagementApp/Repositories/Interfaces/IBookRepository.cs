@@ -7,9 +7,9 @@ public interface IBookRepository
     List<Book> GetAllAvailableBooks();
     List<Book> GetAllByAuthor(string author);
     Book? GetByTitle(string title);
-    bool AddBook(Book book);
-    bool RemoveByUniqueCode(int uniqueCode);
+    Book? AddBook(Book book);
+    Book? RemoveByIsbn(int isbn);
     Book? ChangeStatus(string title);
     bool IsTitleExists(string title);
-    bool IsUniqueCodeExists(int uniqueCode);
+    bool IsUniqueCodeExists(int isbn);
 }

@@ -8,68 +8,34 @@ namespace BookManagementApp.Services;
 public class BookService(IBookRepository repository)
     : IBookService
 {
-    private readonly JsonSerializerOptions _jsonOptions = new()
+    public List<Book> GetAllAvailableBooks()
     {
-        WriteIndented = true
-    };
-
-    public string GetAllAvailableBooks()
-    {
-        var books = repository.GetAllAvailableBooks();
-
-        return books.Count == 0 
-            ? "No available books found" 
-            : JsonSerializer.Serialize(books, _jsonOptions);
+        return repository.GetAllAvailableBooks();
     }
 
-    public string GetAllByAuthor(string author)
+    public List<Book> GetAllByAuthor(string author)
     {
-        var booksByAuthor = repository.GetAllByAuthor(author);
-        
-        return booksByAuthor.Count == 0 
-            ? $"No books found for this author: {author}" 
-            : JsonSerializer.Serialize(booksByAuthor, _jsonOptions);
+        return repository.GetAllByAuthor(author);
     }
 
-    public string GetByTitle(string title)
+    public Book? GetByTitle(string title)
     {
-        var book = repository.GetByTitle(title);
-
-        return book is null 
-            ? $"No book found for title: {title}" 
-            : JsonSerializer.Serialize(book, _jsonOptions);
+        return repository.GetByTitle(title);
     }
 
-    public string AddBook(Book book)
+    public Book? AddBook(Book book)
     {
-        var result = repository.AddBook(book);
-
-        return result
-            ? $"{book.Title} - Added successfully!"
-            : "Book with this unique code already exists!";
+        return repository.AddBook(book);
     }
 
-    public string RemoveByUniqueCode(int uniqueCode)
+    public Book? RemoveByIsbn(int isbn)
     {
-        var result = repository.RemoveByUniqueCode(uniqueCode);
-
-        return result
-            ? "Book removed successfully!"
-            : "No book found with this unique code!";
+        return repository.RemoveByIsbn(isbn);
     }
 
-    public string ChangeStatus(string title)
+    public Book? ChangeStatus(string title)
     {
-        var updatedBook = repository.ChangeStatus(title);
-
-        if (updatedBook  is null)
-            return $"No book found for title: {title}";
-        
-        var newStatus = updatedBook.Status
-            ? "Available"
-            : "Unavailable";
-
-        return $"Book '{updatedBook.Title}' is now {newStatus}";
+        return repository.ChangeStatus(title);
     }
     
     public bool IsTitleExists(string title)
@@ -77,8 +43,8 @@ public class BookService(IBookRepository repository)
         return repository.IsTitleExists(title);
     }
 
-    public bool IsUniqueCodeExists(int uniqueCode)
+    public bool IsUniqueCodeExists(int isbn)
     {
-        return repository.IsUniqueCodeExists(uniqueCode);
+        return repository.IsUniqueCodeExists(isbn);
     }
 }
