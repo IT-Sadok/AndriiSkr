@@ -43,8 +43,8 @@ public class BookService(IBookRepository repository)
         return repository.IsTitleExists(title);
     }
 
-    public bool IsUniqueCodeExists(int isbn)
+    public bool IsIsbnExists(int isbn)
     {
-        return repository.IsUniqueCodeExists(isbn);
+        return repository.IsIsbnExists(isbn);
     }
 }

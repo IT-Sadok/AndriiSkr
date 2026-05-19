@@ -90,7 +90,7 @@ public class BookRepository(IJsonDataHelper jsonDataHelper)
             .Any(x => x.Title == title);
     }
 
-    public bool IsUniqueCodeExists(int isbn)
+    public bool IsIsbnExists(int isbn)
     {
         return jsonDataHelper
             .ReadAll()

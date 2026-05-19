@@ -311,19 +311,19 @@ public class ConsoleMenu(IBookService service)
                 continue;
             }
 
-            if (!int.TryParse(input, out var uniqueCode) || uniqueCode <= 0)
+            if (!int.TryParse(input, out var isbn) || isbn <= 0)
             {
                 Console.WriteLine("Incorrect input! Type a valid isbn unique code.");
                 continue;
             }
 
-            if (service.IsUniqueCodeExists(uniqueCode))
+            if (service.IsIsbnExists(isbn))
             {
                 Console.WriteLine("Book with this isbn unique code already exists!");
                 continue;
             }
 
-            book.Isbn = uniqueCode;
+            book.Isbn = isbn;
             return;
         }
     }

@@ -11,5 +11,5 @@ public interface IBookService
     Book? RemoveByIsbn(int isbn);
     Book? ChangeStatus(string title);
     bool IsTitleExists(string title);
-    bool IsUniqueCodeExists(int isbn);
+    bool IsIsbnExists(int isbn);
 }
