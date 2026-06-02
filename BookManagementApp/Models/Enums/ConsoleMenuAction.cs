@@ -7,5 +7,6 @@ public enum ConsoleMenuAction
     SearchByAuthor = 3,
     SearchByTitle = 4,
     ViewAvailableBooks = 5,
-    ChangeStatus = 6
+    ChangeStatus = 6,
+    RunSimulation = 7
 }

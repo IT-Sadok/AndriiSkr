@@ -2,6 +2,7 @@ using System.Text.Json;
 using BookManagementApp.Models;
 using BookManagementApp.Models.Enums;
 using BookManagementApp.Services.Interfaces;
+using BookManagementApp.Simulation;
 
 namespace BookManagementApp;
 
@@ -11,7 +12,7 @@ public class ConsoleMenu(IBookService service)
     {
         WriteIndented = true
     };
-    
+
     public void Start()
     {
         while (true)
@@ -22,7 +23,7 @@ public class ConsoleMenu(IBookService service)
             {
                 Console.WriteLine($"{(int)menuAction} - {menuAction}");
             }
-            
+
             Console.WriteLine();
 
             var value = Console.ReadLine();
@@ -61,6 +62,10 @@ public class ConsoleMenu(IBookService service)
                     ChangeStatus();
                     break;
 
+                case ConsoleMenuAction.RunSimulation:
+                    RunSimulation();
+                    break;
+
                 default:
                     Console.WriteLine("Invalid action");
                     break;
@@ -71,15 +76,15 @@ public class ConsoleMenu(IBookService service)
     private void GetAllBooks()
     {
         var books = service.GetAllAvailableBooks();
-        
+
         if (books.Count == 0)
         {
             Console.WriteLine("No available books found");
             return;
         }
-        
+
         var json = JsonSerializer.Serialize(books, _jsonOptions);
-        
+
         Console.WriteLine(json);
     }
 
@@ -98,7 +103,7 @@ public class ConsoleMenu(IBookService service)
                 Console.WriteLine("Author cannot be empty!");
                 continue;
             }
-            
+
             var books = service.GetAllByAuthor(input);
 
             if (books.Count == 0)
@@ -108,7 +113,7 @@ public class ConsoleMenu(IBookService service)
             }
 
             var json = JsonSerializer.Serialize(books, _jsonOptions);
-            
+
             Console.WriteLine($"\nSearch result:\n{json}");
             return;
         }
@@ -137,9 +142,9 @@ public class ConsoleMenu(IBookService service)
                 Console.WriteLine($"No book found for title: {input}");
                 continue;
             }
-            
+
             var json = JsonSerializer.Serialize(book, _jsonOptions);
-            
+
             Console.WriteLine($"\nSearch result:\n{json}");
             return;
         }
@@ -150,9 +155,9 @@ public class ConsoleMenu(IBookService service)
         var book = new Book();
 
         var isExit = AddTitle(book);
-        
+
         if (!isExit) return;
-        
+
         AddAuthor(book);
         AddReleaseYear(book);
         AddIsbn(book);
@@ -216,7 +221,7 @@ public class ConsoleMenu(IBookService service)
                 Console.WriteLine("Title cannot be empty!");
                 continue;
             }
-            
+
             var updatedBook = service.ChangeStatus(input);
 
             if (updatedBook is null)
@@ -224,9 +229,9 @@ public class ConsoleMenu(IBookService service)
                 Console.WriteLine($"No book found for title: {input}");
                 continue;
             }
-            
+
             var json = JsonSerializer.Serialize(updatedBook, _jsonOptions);
-            
+
             Console.WriteLine($"Book '{updatedBook.Title}' is now {updatedBook.Status}:\n" + json);
             return;
         }
@@ -329,4 +334,10 @@ public class ConsoleMenu(IBookService service)
     }
 
     #endregion
+
+    private static void RunSimulation()
+    {
+        var simulation = new BookSimulation();
+        simulation.RunAsync().GetAwaiter().GetResult();
+    }
 }
