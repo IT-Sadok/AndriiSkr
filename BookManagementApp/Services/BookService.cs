@@ -37,7 +37,17 @@ public class BookService(IBookRepository repository)
     {
         return repository.ChangeStatus(title);
     }
-    
+
+    public Book? UpdateTitle(int isbn, string newTitle)
+    {
+        return repository.UpdateTitle(isbn, newTitle);
+    }
+
+    public Book? UpdateAuthor(int isbn, string newAuthor)
+    {
+        return repository.UpdateAuthor(isbn, newAuthor);
+    }
+
     public bool IsTitleExists(string title)
     {
         return repository.IsTitleExists(title);

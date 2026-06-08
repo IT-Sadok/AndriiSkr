@@ -2,7 +2,6 @@ using System.Text.Json;
 using BookManagementApp.Models;
 using BookManagementApp.Models.Enums;
 using BookManagementApp.Services.Interfaces;
-using BookManagementApp.Simulation;
 
 namespace BookManagementApp;
 
@@ -335,9 +334,9 @@ public class ConsoleMenu(IBookService service)
 
     #endregion
 
-    private static void RunSimulation()
+    private void RunSimulation()
     {
-        var simulation = new BookSimulation();
+        var simulation = new BookSimulation(service);
         simulation.RunAsync().GetAwaiter().GetResult();
     }
 }
