@@ -8,29 +8,47 @@ public class JsonDataHelper : IJsonDataHelper
 {
     private const string JsonPath = "Books.json";
 
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
+    
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = true
     };
-    
+
     public List<Book> ReadAll()
     {
-        if (!File.Exists(JsonPath))
-            return [];
+        _semaphore.Wait();
+        try
+        {
+            if (!File.Exists(JsonPath))
+                return [];
 
-        var json = File.ReadAllText(JsonPath);
+            var json = File.ReadAllText(JsonPath);
 
-        if (string.IsNullOrEmpty(json))
-            return [];
+            if (string.IsNullOrEmpty(json))
+                return [];
 
-        var books = JsonSerializer.Deserialize<List<Book>>(json);
+            var books = JsonSerializer.Deserialize<List<Book>>(json);
 
-        return books ?? [];
+            return books ?? [];
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     public void WriteAll(List<Book> books)
     {
-        var json = JsonSerializer.Serialize(books, _jsonOptions);
-        File.WriteAllText(JsonPath, json);
+        _semaphore.Wait();
+        try
+        {
+            var json = JsonSerializer.Serialize(books, _jsonOptions);
+            File.WriteAllText(JsonPath, json);
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 }

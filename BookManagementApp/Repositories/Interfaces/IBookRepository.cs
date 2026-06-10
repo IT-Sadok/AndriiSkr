@@ -10,6 +10,8 @@ public interface IBookRepository
     Book? AddBook(Book book);
     Book? RemoveByIsbn(int isbn);
     Book? ChangeStatus(string title);
+    Book? UpdateTitle(int isbn, string newTitle);
+    Book? UpdateAuthor(int isbn, string newAuthor);
     bool IsTitleExists(string title);
     bool IsIsbnExists(int isbn);
 }
